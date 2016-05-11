@@ -1,0 +1,39 @@
+{
+  "description": "Detect how many resources are loaded in your page",
+  "manifest_version": 2,
+  "name": "How many resources",
+  "version": "1.0",
+  "homepage_url": "https://github.com/mte90/how-many-resources",
+  "icons": {
+    "32": "icons/32.png",
+    "48": "icons/48.png"
+  },
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "browser_action": {
+    "default_icon": "icons/32.png",
+    "default_title": "Toolbar"
+  },
+
+  "content_scripts": [
+    {
+      "js": ["contentscript.js"],
+      "run_at": "document_idle",
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "web_accessible_resources": [
+    "toolbar/ui.html"
+  ],
+
+  "applications": {
+    "gecko": {
+      "id": "how-many-resources@mozilla.org",
+      "strict_min_version": "46.0"
+    }
+  }
+}
