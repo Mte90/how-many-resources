@@ -1,26 +1,16 @@
-// Handle click events on the toolbar button.
-document.querySelector("#scan").addEventListener("click", function () {
-  console.log('Asking to the page from iframe for the window.performance object');
-  window.parent.postMessage({
-    direction: "window-performance-iframe",
-    message: "Asking for performance"
-  }, '*');
-  console.log(window.test)
-});
+let {port1, port2} = new MessageChannel();
 
-
-window.addEventListener("message", function (event) {
-  console.log(event)
-  if (event.data.direction && event.data.direction === "window-performance-page") {
-    console.log(event.data.message)
-
-//  var resources = window.parent.performance.getEntriesByType("resource");
-//  resources.forEach(function (resource) {
-//    console.log(resource.name);
-//  });
+port1.onmessage = (event) => {
+  if (event.data.JSONPerformance) {
+    let performanceData = JSON.parse(event.data.JSONPerformance);
+    console.log("iframe received a port message", performanceData);
+    document.querySelector("pre").innerHTML = JSON.stringify(performanceData, null, 2);
   }
-});
+};
 
-chrome.runtime.onMessage.addListener(function (msg) {
-  console.log(msg)
-});
+document.querySelector("#scan").onclick = () => {
+  console.log("CLICKED scan");
+  port1.postMessage("scan");
+};
+
+window.parent.postMessage("connect-perfomance-toolbar", "*", [port2]);
