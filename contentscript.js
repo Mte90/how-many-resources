@@ -27,29 +27,26 @@ function toggleToolbar(toolbarUI) {
 // Handle messages from the add-on background page (only in top level iframes)
 if (window.parent === window) {
   window.addEventListener("message", function (event) {
-    console.log("window postMessage", event);
-
-    if (event.data == "connect-perfomance-toolbar") {
-      console.log("content script received and setup messagechannel port");
-
+    console.log('Listening from the contentscript for messages');
+    if (event.data === "connect-perfomance-toolbar") {
+      console.log("Content script received and setup a messagechannel");
+	  // Get the reference of the communication
       let [port] = event.ports;
       port.onmessage = function(event) {
-        console.log("content script received a port message", event);
-        if (event.data == "scan") {
+        console.log("Content script received a message");
+        if (event.data === "scan") {
           // send an updated data set
           port.postMessage({
             JSONPerformance: JSON.stringify(window.performance),
           });
         }
       };
-
       // send an initial data set
       port.postMessage({
         JSONPerformance: JSON.stringify({
           message: "click scan to send a real data set"
         })
       });
-
     } else {
       console.error("Unrecognized postMessage", event.data);
     }
