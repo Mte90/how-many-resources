@@ -4,12 +4,6 @@ body {
   background: rgba(255,255,255,0.9);
 }
 
-#title {
-  font-weight: bold;
-  font-size: 1em;
-}
-
-
 /* Scan Button. */
 
 #scan {
@@ -17,4 +11,15 @@ body {
   right: 4px;
   position: absolute;
   margin: 0 1em;
+}
+
+/* Layout*/
+
+.left {
+	float:left;
+	width:50%;
+}
+.right {
+	float:right;
+	width:50%;
 }

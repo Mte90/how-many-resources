@@ -7,10 +7,3 @@ function toggleToolbar() {
 
 // Handle the browser action button.
 chrome.browserAction.onClicked.addListener(toggleToolbar);
-
-chrome.runtime.onMessage.addListener(function (data, sender) {
-  if (data.direction && data.direction === "window-performance-page") {
-    console.log('Sending to the iframe from the background the window.performance object');
-    chrome.tabs.sendMessage(sender.tab.id, data.message);
-  }
-});

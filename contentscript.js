@@ -5,60 +5,84 @@ function initToolbar() {
   var iframe = document.createElement("iframe");
   iframe.className = 'how-many-resources-iframe';
   iframe.setAttribute("src", chrome.runtime.getURL("toolbar/ui.html"));
-  iframe.setAttribute("style", "position: fixed; top: 0; left: 0; z-index: 10000; width: 100%; height: auto;");
+  iframe.setAttribute("style", "position: fixed; top: 0; left: 0; z-index: 10000; width: 100%; height: 400px;");
   document.body.appendChild(iframe);
   console.log('Iframe injected in the page');
 
   return toolbarUI = {
-    iframe: iframe, visible: true
+	iframe: iframe, visible: true
   };
 }
 
 function toggleToolbar(toolbarUI) {
   if (toolbarUI.visible) {
-    toolbarUI.visible = false;
-    toolbarUI.iframe.style["display"] = "none";
+	toolbarUI.visible = false;
+	toolbarUI.iframe.style["display"] = "none";
   } else {
-    toolbarUI.visible = true;
-    toolbarUI.iframe.style["display"] = "block";
+	toolbarUI.visible = true;
+	toolbarUI.iframe.style["display"] = "block";
   }
 }
 
 // Handle messages from the add-on background page (only in top level iframes)
 if (window.parent === window) {
   window.addEventListener("message", function (event) {
-    console.log('Listening from the contentscript for messages');
-    if (event.data === "connect-perfomance-toolbar") {
-      console.log("Content script received and setup a messagechannel");
+	console.log('Listening from the contentscript for messages');
+	// What type of request?
+	if (event.data === "connect-perfomance-toolbar") {
+	  console.log("Content script received and setup a messagechannel");
 	  // Get the reference of the communication
-      let [port] = event.ports;
-      port.onmessage = function(event) {
-        console.log("Content script received a message");
-        if (event.data === "scan") {
-          // send an updated data set
-          port.postMessage({
-            JSONPerformance: JSON.stringify(window.performance),
-          });
-        }
-      };
-      // send an initial data set
-      port.postMessage({
-        JSONPerformance: JSON.stringify({
-          message: "click scan to send a real data set"
-        })
-      });
-    } else {
-      console.error("Unrecognized postMessage", event.data);
-    }
+	  var port = event.ports[0];
+	  port.onmessage = function (event) {
+		console.log("Content script received a message", event.data);
+		// What message?
+		if (event.data === "scan") {
+		  var timinginfo = window.performance.timing.toJSON();
+		  // Loop all the element of the object
+		  for (var element in timinginfo) {
+			// Skip loop if the property is from prototype
+			if (!timinginfo.hasOwnProperty(element))
+			  continue;
+			timinginfo[element] = unixToHuman(timinginfo[element]);
+		  }
+		  // Send the request
+		  port.postMessage({
+			Timing: JSON.stringify(timinginfo),
+			message: '<a href="https://www.w3.org/TR/navigation-timing/#processing-model">https://www.w3.org/TR/navigation-timing/#processing-model</a>'
+		  });
+		  console.log(window.performance.resources.getEntries())
+//		  var resources = window.performance.resources.getEntries();
+//		  for (var i = 0; i < resources.length; i++) {
+//			resourcesname[i] = resources[i].name;
+//		  }
+//		  // Send the request
+//		  port.postMessage({
+//			Resources: JSON.stringify(resourcesname),
+//			message: 'How many resources!'
+//		  });
+		}
+		// Add here your new request!
+	  };
+	} else {
+	  console.error("Unrecognized postMessage", event.data);
+	}
   });
 
   chrome.runtime.onMessage.addListener(function (msg) {
-    if (msg === "toggle-in-page-toolbar") {
-      if (toolbarUI) {
-        toggleToolbar(toolbarUI);
-      } else {
-        toolbarUI = initToolbar();
-      }
-    }
+	if (msg === "toggle-in-page-toolbar") {
+	  if (toolbarUI) {
+		toggleToolbar(toolbarUI);
+	  } else {
+		toolbarUI = initToolbar();
+	  }
+	}
   });
+}
+
+function unixToHuman(time) {
+  if (time > 0) {
+	var newDate = new Date(time);
+	time = newDate.getDate() + '/' + newDate.getMonth() + '/' + newDate.getHours() + ' ' + newDate.getHours() + ':' + newDate.getMinutes() + ':' + newDate.getMilliseconds();
+  }
+  return time;
 }
