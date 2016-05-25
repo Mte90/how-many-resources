@@ -58,7 +58,7 @@ if (window.parent === window) {
 		  }
 		  // Send the request
 		  port.postMessage({
-			Resources: resourcesname,
+			Resources: resourcesname.sort(),
 			message: 'How many resources!'
 		  });
 		}
