@@ -14,9 +14,9 @@ port1.onmessage = function (event) {
   }
   if (event.data.Resources) {
 	// Get the object that we need
-    var resourcesData = JSON.parse(event.data.Resources);
+    var resourcesData = event.data.Resources;
     console.log("Iframe received a message");
-    document.querySelector(".right pre.timing").innerHTML = JSON.stringify(resourcesData, null, 2);
+    document.querySelector(".right pre.resources").innerHTML = JSON.stringify(resourcesData, null, 2);
     document.querySelector(".right div.message").innerHTML = event.data.message;
   }
 };

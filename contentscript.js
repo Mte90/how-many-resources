@@ -50,16 +50,17 @@ if (window.parent === window) {
 			Timing: JSON.stringify(timinginfo),
 			message: '<a href="https://www.w3.org/TR/navigation-timing/#processing-model">https://www.w3.org/TR/navigation-timing/#processing-model</a>'
 		  });
-		  console.log(window.performance.resources.getEntries())
-//		  var resources = window.performance.resources.getEntries();
-//		  for (var i = 0; i < resources.length; i++) {
-//			resourcesname[i] = resources[i].name;
-//		  }
-//		  // Send the request
-//		  port.postMessage({
-//			Resources: JSON.stringify(resourcesname),
-//			message: 'How many resources!'
-//		  });
+		  console.log(window.performance.getEntries())
+		  var resources = window.performance.getEntries();
+                  var resourcesname = [];
+		  for (var i = 0; i < resources.length; i++) {
+                        resourcesname.push(resources[i].name);
+		  }
+		  // Send the request
+		  port.postMessage({
+			Resources: resourcesname,
+			message: 'How many resources!'
+		  });
 		}
 		// Add here your new request!
 	  };
