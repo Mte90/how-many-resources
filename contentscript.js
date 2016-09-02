@@ -50,23 +50,31 @@ if (window.parent === window) {
 			Timing: JSON.stringify(timinginfo),
 			message: '<a href="https://www.w3.org/TR/navigation-timing/#processing-model">https://www.w3.org/TR/navigation-timing/#processing-model</a>'
 		  });
-		  console.log(window.performance.getEntries())
 		  var resources = window.performance.getEntries();
-                  var resourcesname = [];
+                  var resourcesname = countresources = [];
 		  for (var i = 0; i < resources.length; i++) {
+                        if(countresources[getDomain(resources[i].name)] === undefined) {
+                            countresources[getDomain(resources[i].name)] = 1;
+                        } else {
+                            countresources[getDomain(resources[i].name)] += 1;
+                        }
                         resourcesname.push(resources[i].name);
+		  }
+		  message = '<br>';
+		  for (var key in countresources) {
+                        if(isNaN(Number(key))) {
+                            message += key + ': ' + countresources[key] + '<br>';
+                        }
 		  }
 		  // Send the request
 		  port.postMessage({
 			Resources: resourcesname.sort(),
-			message: 'How many resources!'
+			message: 'How many resources!' + message
 		  });
 		}
 		// Add here your new request!
 	  };
-	} else {
-	  console.error("Unrecognized postMessage", event.data);
-	}
+	} 
   });
 
   chrome.runtime.onMessage.addListener(function (msg) {
@@ -86,4 +94,18 @@ function unixToHuman(time) {
 	time = newDate.getDate() + '/' + newDate.getMonth() + '/' + newDate.getHours() + ' ' + newDate.getHours() + ':' + newDate.getMinutes() + ':' + newDate.getMilliseconds();
   }
   return time;
+}
+
+function getDomain(url) {
+    var domain;
+    if (url.indexOf("://") > -1) {
+        domain = url.split('/')[2];
+    }
+    else {
+        domain = url.split('/')[0];
+    }
+    //find & remove port number
+    domain = domain.split(':')[0];
+
+    return domain;
 }
